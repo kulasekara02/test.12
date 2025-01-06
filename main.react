@@ -1,0 +1,300 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CheckCircle, XCircle, Book } from 'lucide-react';
+
+const MCQScoringSystem = () => {
+  const [answers, setAnswers] = useState({});
+  const [showResults, setShowResults] = useState(false);
+  const [currentSection, setCurrentSection] = useState(1);
+
+  // Complete MCQ data organized by topics
+  const mcqData = {
+    1: [ // Process Approach and Quality Models History
+      {
+        question: "What is the main focus of the process approach in CMMI?",
+        options: {
+          A: "Product-centric thinking",
+          B: "Customer-focused outcomes",
+          C: "Continuous improvement of processes",
+          D: "Random innovation"
+        },
+        correct: "C"
+      },
+      {
+        question: "Which quality model focuses on organizational processes and continuous improvement?",
+        options: {
+          A: "ITIL",
+          B: "ISO 9001",
+          C: "CMMI",
+          D: "Six Sigma"
+        },
+        correct: "C"
+      },
+      {
+        question: "Which historical quality model emphasized statistical process control methods?",
+        options: {
+          A: "CMMI",
+          B: "Total Quality Management (TQM)",
+          C: "ISO/IEC 27001",
+          D: "Six Sigma"
+        },
+        correct: "D"
+      },
+      {
+        question: "Process approach in CMMI primarily aims to:",
+        options: {
+          A: "Replace management reporting",
+          B: "Ensure compliance to government regulations only",
+          C: "Help organizations focus on systematically improving processes",
+          D: "Eliminate the need for project oversight"
+        },
+        correct: "C"
+      }
+    ],
+    2: [ // CMMI Models
+      {
+        question: "CMMI for Development (CMMI-DEV) is primarily focused on:",
+        options: {
+          A: "Human resource management",
+          B: "Service management and delivery",
+          C: "Product and service acquisition",
+          D: "Product and service development processes"
+        },
+        correct: "D"
+      },
+      {
+        question: "The Continuous Representation in CMMI allows organizations to:",
+        options: {
+          A: "Follow a strict step-by-step maturity level approach",
+          B: "Focus on improving specific process areas at their own pace",
+          C: "Eliminate the need for appraisals",
+          D: "Implement all process areas simultaneously"
+        },
+        correct: "B"
+      },
+      {
+        question: "In CMMI Staged Representation, each maturity level builds on:",
+        options: {
+          A: "Best practices unrelated to prior levels",
+          B: "Completely new processes unrelated to the previous maturity level",
+          C: "The process capability achieved in the previous maturity level",
+          D: "Random improvements without structure"
+        },
+        correct: "C"
+      },
+      {
+        question: "What is the highest maturity level in the CMMI Staged Representation?",
+        options: {
+          A: "Defined",
+          B: "Managed",
+          C: "Quantitatively Managed",
+          D: "Optimizing"
+        },
+        correct: "D"
+      }
+    ],
+    3: [ // Process Improvement
+      {
+        question: "Process improvement initiatives typically begin by:",
+        options: {
+          A: "Hiring more personnel",
+          B: "Conducting a gap analysis between current and desired process states",
+          C: "Stopping all projects to focus on quality",
+          D: "Outsourcing all non-critical tasks"
+        },
+        correct: "B"
+      },
+      {
+        question: "A key benefit of implementing process improvement in an organization is:",
+        options: {
+          A: "Reduction in compliance with international standards",
+          B: "Decreased visibility into performance",
+          C: "Enhanced predictability and higher quality outcomes",
+          D: "Lower employee morale"
+        },
+        correct: "C"
+      }
+    ],
+    // Continue with all sections...
+    28: [ // Agile Development - Scrum
+      {
+        question: "Scrum is characterized by:",
+        options: {
+          A: "Strict, sequential phases",
+          B: "Short, iterative development cycles called Sprints",
+          C: "No stakeholder involvement until the end",
+          D: "Highly rigid requirements from the beginning"
+        },
+        correct: "B"
+      },
+      {
+        question: "A key role in Scrum is the Product Owner, who:",
+        options: {
+          A: "Manages the Development Team's task assignments in detail",
+          B: "Owns the project budget only",
+          C: "Maximizes the value of the product by managing the Product Backlog",
+          D: "Has no say in requirements prioritization"
+        },
+        correct: "C"
+      },
+      {
+        question: "In Agile-Scrum, regular ceremonies include:",
+        options: {
+          A: "Weekly budget reviews with shareholders",
+          B: "Daily Scrums (Stand-ups), Sprint Planning, Sprint Review, and Sprint Retrospective",
+          C: "Monthly compliance audits only",
+          D: "Ad-hoc meetings with no structure"
+        },
+        correct: "B"
+      },
+      {
+        question: "How can Scrum practices align with CMMI-based process improvement?",
+        options: {
+          A: "Scrum contradicts all forms of process maturity models",
+          B: "Scrum's iterative approach can be integrated with CMMI's focus on continuous improvement",
+          C: "CMMI mandates only waterfall development",
+          D: "They cannot be combined under any circumstance"
+        },
+        correct: "B"
+      }
+    ]
+  };
+
+  const handleAnswerSelect = (questionIndex, selectedOption) => {
+    setAnswers(prev => ({
+      ...prev,
+      [`${currentSection}-${questionIndex}`]: selectedOption
+    }));
+  };
+
+  const calculateScore = () => {
+    let correct = 0;
+    let total = 0;
+    let sectionScores = {};
+
+    Object.entries(mcqData).forEach(([section, questions]) => {
+      let sectionCorrect = 0;
+      questions.forEach((_, index) => {
+        const userAnswer = answers[`${section}-${index}`];
+        if (userAnswer === questions[index].correct) {
+          correct++;
+          sectionCorrect++;
+        }
+        total++;
+      });
+      sectionScores[section] = {
+        correct: sectionCorrect,
+        total: questions.length,
+        percentage: ((sectionCorrect / questions.length) * 100).toFixed(1)
+      };
+    });
+
+    return {
+      correct,
+      total,
+      percentage: ((correct / total) * 100).toFixed(1),
+      sectionScores
+    };
+  };
+
+  const score = calculateScore();
+
+  const getSectionTitle = (section) => {
+    const titles = {
+      1: "Process Approach and Quality Models",
+      2: "CMMI Models",
+      3: "Process Improvement",
+      // ... add all section titles
+      28: "Agile Development - Scrum"
+    };
+    return titles[section] || `Section ${section}`;
+  };
+
+  return (
+    <div className="w-full max-w-4xl mx-auto p-4">
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Book className="w-6 h-6" />
+            CMMI MCQ Assessment System
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
+            {Object.keys(mcqData).map((section) => (
+              <button
+                key={section}
+                onClick={() => setCurrentSection(Number(section))}
+                className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+                  currentSection === Number(section)
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 hover:bg-gray-200'
+                }`}
+              >
+                {getSectionTitle(section)}
+              </button>
+            ))}
+          </div>
+          
+          <div className="space-y-6">
+            {mcqData[currentSection].map((question, index) => (
+              <div key={index} className="border rounded-lg p-4 bg-white shadow-sm">
+                <p className="font-medium mb-3">
+                  {index + 1}. {question.question}
+                </p>
+                <div className="grid grid-cols-1 gap-2">
+                  {Object.entries(question.options).map(([option, text]) => (
+                    <button
+                      key={option}
+                      onClick={() => handleAnswerSelect(index, option)}
+                      className={`text-left p-2 rounded transition-colors ${
+                        answers[`${currentSection}-${index}`] === option
+                          ? 'bg-blue-100'
+                          : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      {option}) {text}
+                      {showResults && (
+                        <span className="float-right">
+                          {option === question.correct ? (
+                            <CheckCircle className="inline text-green-500" size={20} />
+                          ) : answers[`${currentSection}-${index}`] === option ? (
+                            <XCircle className="inline text-red-500" size={20} />
+                          ) : null}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6">
+            <button
+              onClick={() => setShowResults(!showResults)}
+              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              {showResults ? 'Hide Results' : 'Show Results'}
+            </button>
+            
+            {showResults && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-bold mb-2">Overall Score: {score.correct}/{score.total} ({score.percentage}%)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {Object.entries(score.sectionScores).map(([section, sectionScore]) => (
+                    <div key={section} className="text-sm">
+                      {getSectionTitle(section)}: {sectionScore.correct}/{sectionScore.total} ({sectionScore.percentage}%)
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default MCQScoringSystem;
